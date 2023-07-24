@@ -1,5 +1,6 @@
 extern crate core;
 
+use std::env::args;
 use std::io::{self};
 
 use std::str;
@@ -11,15 +12,20 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{UnixStream, UnixListener};
 use tokio::runtime::Runtime;
 use log::{debug};
-use crate::ros2entites::ros2entities::{Ros2State};
+use crate::ros2entites::ros2entities::{Ros2State, Settings};
 pub use serde_json::{json};
 use tokio::time;
 use crate::api::api::handle_request;
-use crate::ros2utils::ros2utils::{ros2_state};
+use crate::network::network::find_node_ip;
+use crate::ros2utils::ros2utils::{ros2_init, ros2_state};
 
 mod ros2entites;
 mod ros2utils;
 mod api;
+mod protocol;
+mod network;
+mod packet_capture;
+mod packet_parse;
 
 /**
 Handle client json request
@@ -44,6 +50,12 @@ async fn handle_client(mut stream: UnixStream, current_state: Arc<Mutex<Ros2Stat
 fn main() -> io::Result<()> {
     simple_logger::init_with_level(log::Level::Debug).unwrap();
 
+    let mut settings: Settings = Settings::new();
+    settings.domain_id = 1;
+
+    find_node_ip("".to_string(), settings.domain_id);
+
+    ros2_init(args());
 
     let socket_name = "/tmp/ros2monitor.sock";
     if Path::new(socket_name).exists() {

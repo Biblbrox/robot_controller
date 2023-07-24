@@ -2,8 +2,9 @@ pub mod api {
     use std::sync::{Arc, Mutex};
     use log::{error, warn};
     use serde_json::json;
+    use crate::protocol::JsonProtocol;
     use crate::ros2entites::ros2entities::{Ros2State, Ros2Topic};
-    use crate::ros2utils::ros2utils::{is_node_running, JsonProtocol, kill_node, run_node};
+    use crate::ros2utils::ros2utils::{is_node_running, shutdown_node, run_node};
 
     /**
     Generate json for ros2 state object
@@ -30,8 +31,10 @@ pub mod api {
         let command = parsed.command.clone();
         let response: String = match command.as_str() {
             "state" => state_command(&parsed, current_state),
-            "kill_node" => kill_node_command(&parsed, current_state),
-            "start_node" => "".to_string(),
+            "shutdown" => shutdown_node_command(&parsed, current_state),
+            "configure" => configure_node_command(&parsed, current_state),
+            "launch" => launch_node_command(&parsed, current_state),
+            "cleanup" => cleanup_node_command(&parsed, current_state),
             "rename_topic" => "".to_string(),
             _ => "Unknown request".to_string()
         };
@@ -73,7 +76,7 @@ pub mod api {
         let node_name = topic.node_name;
         // Check if node is running. If yes then kill it
         if is_node_running(node_name.clone()) {
-            kill_node(node_name.clone());
+            shutdown_node(node_name.clone());
         }
 
         // Restart node with altered topic name
@@ -122,7 +125,7 @@ pub mod api {
         return ros2_state_json(current_state.clone());
     }
 
-    pub fn kill_node_command(request: &JsonProtocol, _current_state: Arc<Mutex<Ros2State>>) -> String {
+    pub fn shutdown_node_command(request: &JsonProtocol, _current_state: Arc<Mutex<Ros2State>>) -> String {
         // Extract node name from request
         let node_name = if request.arguments.contains_key("node_name") {
             request.arguments.get("node_name").unwrap().to_string()
@@ -135,6 +138,25 @@ pub mod api {
             return "".to_string();
         }
 
-        return kill_node(node_name);
+        return shutdown_node(node_name);
     }
+
+    pub fn configure_node_command(request: &JsonProtocol, _current_state: Arc<Mutex<Ros2State>>) -> String {
+        // TODO: Implement
+        return "".to_string();
+    }
+
+    pub fn launch_node_command(request: &JsonProtocol, _current_state: Arc<Mutex<Ros2State>>) -> String {
+        // TODO: Implement
+        return "".to_string();
+    }
+
+    pub fn cleanup_node_command(request: &JsonProtocol, _current_state: Arc<Mutex<Ros2State>>) -> String {
+        // TODO: Implement
+        return "".to_string();
+    }
+
+    /*"configure" => configure_node_command(&parsed, current_state),
+    "launch" => launch_node_command(&parsed, current_state),
+    "cleanup" => cleanup_node_command(&parsed, current_state),*/
 }

@@ -1,121 +1,28 @@
 pub mod ros2utils {
-    use std::collections::HashMap;
+    use std::env::Args;
     use std::ffi::OsStr;
     use std::process::{Command};
     use std::string::String;
     use regex;
 
     use std::sync::{Arc, Mutex};
-    use log::{debug};
+    use rclrs::{Context, Node};
 
-    use serde_json::{Value, Map};
-    use crate::ros2entites::ros2entities::{Host, Ros2ActionClient, Ros2ActionServer, Ros2Executable, Ros2Node, Ros2Package, Ros2Publisher, Ros2ServiceClient, Ros2ServiceServer, Ros2State, Ros2Subscriber, Ros2Topic};
+    use crate::ros2entites::ros2entities::{Host, Ros2NodeState, Ros2ActionClient, Ros2ActionServer, Ros2Executable, Ros2Node, Ros2Package, Ros2Publisher, Ros2ServiceClient, Ros2ServiceServer, Ros2State, Ros2Subscriber, Ros2Topic};
 
-    pub struct JsonProtocol {
-        // List of all possible commands
-        pub allowed_commands: Vec<String>,
-        // Map of required arguments for each command
-        pub allowed_arguments: HashMap<String, Vec<String>>,
+    pub fn ros2_init(args: Args) -> Context {
+        let context = rclrs::Context::new(args).unwrap();
 
-        pub command: String,
-        pub arguments: HashMap<String, String>,
-    }
+        let test_node = Node::new(&context, "test_node").unwrap();
+        let node_names = test_node.get_node_names().unwrap();
 
-    impl JsonProtocol {
-        pub fn new() -> JsonProtocol {
-            let mut commands = Vec::new();
-            let mut arguments: HashMap<String, Vec<String>> = HashMap::new();
-
-            commands.push("state".to_string());
-            arguments.insert("state".to_string(), Vec::new());
-
-            commands.push("kill_node".to_string());
-            let kill_node_args = ["node_name".to_string()].to_vec();
-            arguments.insert("kill_node".to_string(), kill_node_args);
-
-            commands.push("rename_topic".to_string());
-            let rename_topic_args = ["node_name".to_string()].to_vec();
-            arguments.insert("rename_topic".to_string(), rename_topic_args);
-
-            commands.push("start_node".to_string());
-            let start_node_args = ["node_name".to_string()].to_vec();
-            arguments.insert("start_node".to_string(), start_node_args);
-
-            return JsonProtocol {
-                allowed_commands: commands,
-                allowed_arguments: arguments,
-                command: "".to_string(),
-                arguments: HashMap::new(),
-            };
+        println!("Domain ID: {}", test_node.domain_id());
+        for node_name in node_names {
+            println!("Node name: {}", node_name.name);
         }
 
-        /// Parse json formatted request string. Return nothing on success, error message - on error
-        pub fn parse_request(&mut self, json_request: &str) -> Result<(), String> {
-            debug!("Parsing json request: {}", json_request);
-            let valid_example = r#"
-            {
-                "command": <command_name>,
-                "arguments": [<argument list>]
-            }
-            "#;
-
-            let trimmed = json_request.trim();
-            let request_parse = serde_json::from_str(trimmed);
-            if !request_parse.is_ok() {
-                let msg = format!("Request must be valid json. Please, use the followed command structure: \n{}", valid_example).to_string();
-                return Err(msg);
-            }
-
-            let request: Map<String, Value> = request_parse.unwrap();
-            if !request.contains_key("command") {
-                let msg = format!("Json request must contain command name. Please, use the followed command structure: \n{}", valid_example).to_string();
-                return Err(msg);
-            }
-            let command = request.get("command").unwrap().as_str().unwrap().to_string();
-            if !self.allowed_commands.contains(&command.clone()) {
-                let msg = format!("You must use one of the following supported commands: {:?}. Command {} is not supported", self.allowed_commands, command.clone());
-                return Err(msg);
-            }
-            self.command = command.clone();
-            debug!("Command: {}", self.command);
-
-            if !request.contains_key("arguments") {
-                let msg = format!("Json request must contain arguments array. Please, use the followed command structure: \n{}", valid_example).to_string();
-                return Err(msg);
-            }
-
-            for argument in request.get("arguments") {
-                if argument.as_array().is_none() || argument.as_array().unwrap().len() == 0 {
-                    continue;
-                }
-
-                let arg_obj = argument.as_array().unwrap()[0].as_object().unwrap();
-                if !arg_obj.contains_key("name") {
-                    let msg = "Each argument object in request must have a name field";
-                    return Err(msg.to_string());
-                }
-
-                if !arg_obj.contains_key("value") {
-                    let msg = "Each argument object in request must have a value field";
-                    return Err(msg.to_string());
-                }
-
-                let arg_name = arg_obj.get("name").unwrap().as_str().unwrap().to_string();
-                let arg_value = arg_obj.get("value").unwrap().as_str().unwrap().to_string();
-
-                if !self.allowed_arguments.get(&command).unwrap().contains(&arg_name) {
-                    let allowed_arguments = self.allowed_arguments.get(self.command.as_str()).unwrap();
-                    let msg = format!("Argument {} is not allowed for command {}. Allowed arguments for this command: {:?}", arg_name, self.command, allowed_arguments);
-                    return Err(msg);
-                }
-
-                self.arguments.insert(arg_name, arg_value);
-            }
-
-            Ok(())
-        }
+        return context;
     }
-
 
     pub fn ros2_cold_state() -> Ros2State {
         // Unsupported for now!!!
@@ -219,8 +126,26 @@ pub mod ros2utils {
                 action_servers.push(Ros2ActionServer { name: infos[0].clone(), topic_name: infos[0].clone(), node_name: node_name.clone() });
             }
 
+            let is_lifecycle: bool = is_node_lifecycle(node_name.clone());
+            let lifecycle_state = match is_lifecycle {
+                true => { lifecycle_state(node_name.clone()) }
+                false => Ros2NodeState::NonLifecycle
+            };
+
             // TODO: to know package name of each node
-            nodes.push(Ros2Node { name: node_name.clone(), package_name: "package".to_string(), subscribers, publishers, action_clients, action_servers, service_clients, service_servers, host: Host::new(), is_lifecycle: is_node_lifecycle(node_name) })
+            nodes.push(Ros2Node {
+                name: node_name.clone(),
+                package_name: "package".to_string(),
+                subscribers,
+                publishers,
+                action_clients,
+                action_servers,
+                service_clients,
+                service_servers,
+                host: Host::new(),
+                is_lifecycle,
+                state: lifecycle_state,
+            })
         }
 
         return nodes;
@@ -240,7 +165,30 @@ pub mod ros2utils {
         return info;
     }
 
-    pub fn is_node_lifecycle(node_name: String) -> bool {
+    pub fn lifecycle_state(node_name: String) -> Ros2NodeState {
+        let data_bytes = Command::new("ros2")
+            .arg("lifecycle")
+            .arg("get")
+            .arg(node_name)
+            .output()
+            .expect("failed to execute process");
+        let state_str: String = match String::from_utf8(data_bytes.stdout) {
+            Ok(v) => v.split_whitespace().next().unwrap().to_string(),
+            Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+        };
+
+        let state: Ros2NodeState = match state_str.as_str() {
+            "unconfigured" => Ros2NodeState::Unconfigured,
+            "inactive" => Ros2NodeState::Inactive,
+            "active" => Ros2NodeState::Active,
+            "shutdown" => Ros2NodeState::Shutdown,
+            _ => Ros2NodeState::NonLifecycle
+        };
+
+        return state;
+    }
+
+    pub fn lifecycled_node_names() -> Vec<String> {
         let data_bytes = Command::new("ros2")
             .arg("lifecycle")
             .arg("nodes")
@@ -251,7 +199,11 @@ pub mod ros2utils {
             Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
         };
         let lifecycle_nodes: Vec<String> = lifecycle_nodes_str.lines().map(|node| node.to_string()).collect();
-        return lifecycle_nodes.contains(&node_name);
+        return lifecycle_nodes;
+    }
+
+    pub fn is_node_lifecycle(node_name: String) -> bool {
+        return lifecycled_node_names().contains(&node_name);
     }
 
     ///  This function may be well applied only for lifecycle nodes.
@@ -267,7 +219,7 @@ pub mod ros2utils {
     /// ```
     ///
     /// ```
-    pub fn kill_node(node_name: String) -> String {
+    pub fn shutdown_node(node_name: String) -> String {
         return if is_node_lifecycle(node_name.clone()) { // Perform lifecycle scenario
             let err_msg_on_shutdown = format!("Unable to set shutdown state for node {}", node_name);
             // Set shutdown state
@@ -547,7 +499,7 @@ pub mod ros2utils {
 #[cfg(test)]
 mod tests {
     use std::process::Command;
-    use crate::ros2utils::ros2utils::{is_node_running, kill_node, run_sample_node};
+    use crate::ros2utils::ros2utils::{is_node_running, shutdown_node, run_sample_node};
 
     #[test]
     fn test_kill_running_node() {
@@ -562,7 +514,7 @@ mod tests {
         let expected_response = format!("{{\"result\": \"failure\", \"msg\": \"Unable to kill node {}\"}}", node_name);
         let output = Command::new("killall").arg(node_name.clone()).output().unwrap();
         //output.status.set_success(false);
-        let response = kill_node(node_name);
+        let response = shutdown_node(node_name);
         assert_eq!(response, expected_response);
     }
 }

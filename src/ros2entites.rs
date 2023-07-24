@@ -2,6 +2,32 @@ pub mod ros2entities {
     use std::string::String;
     use serde::{Deserialize, Serialize};
 
+    #[derive(Deserialize, Clone, Serialize)]
+    pub struct Settings {
+        pub domain_id: u32,
+    }
+
+    impl Settings {
+        pub fn new() -> Settings {
+            return Settings { domain_id: 0 };
+        }
+
+        pub fn from_json(json: &str) -> Settings {
+            let settings: Settings = serde_json::from_str(json).unwrap();
+            return settings;
+        }
+
+        pub fn to_json(&self) -> String {
+            let json = serde_json::to_string(&self).unwrap();
+            return json;
+        }
+
+        pub fn save(&self, path: &str) {
+            let json = self.to_json();
+            std::fs::write(path, json).expect("Unable to write file");
+        }
+    }
+
 
     #[derive(Deserialize, Clone)]
     pub struct Ros2State {
@@ -25,14 +51,14 @@ pub mod ros2entities {
     pub struct Ros2Package {
         pub name: String,
         pub path: String,
-        pub executables: Vec<Ros2Executable>
+        pub executables: Vec<Ros2Executable>,
     }
 
     #[derive(Serialize, Deserialize, Clone)]
     pub struct Ros2Executable {
         pub name: String,
         pub package_name: String,
-        pub path: String
+        pub path: String,
     }
 
     #[derive(Serialize, Deserialize, Clone)]
@@ -47,6 +73,16 @@ pub mod ros2entities {
         }
     }
 
+    #[derive(Clone, Serialize, Deserialize)]
+    pub enum Ros2NodeState {
+        Unconfigured,
+        Inactive,
+        Active,
+        Shutdown,
+        // For non lifecycle nodes, which doesn't support lifecycle states
+        NonLifecycle,
+    }
+
     #[derive(Serialize, Deserialize, Clone)]
     pub struct Ros2Node {
         pub name: String,
@@ -58,7 +94,8 @@ pub mod ros2entities {
         pub action_servers: Vec<Ros2ActionServer>,
         pub action_clients: Vec<Ros2ActionClient>,
         pub host: Host,
-        pub is_lifecycle: bool
+        pub is_lifecycle: bool,
+        pub state: Ros2NodeState,
     }
 
     #[derive(Serialize, Deserialize, Clone)]
