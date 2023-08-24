@@ -1,0 +1,12 @@
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:[m[K In function ‘[01m[Kvoid kill_server_callback(ParticipantData, void*)[m[K’:
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:97:40:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Kuser_data[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wunused-parameter-Wunused-parameter]8;;[m[K]
+   97 |                                  [01;35m[Kvoid *user_data[m[K) {
+      |                                  [01;35m[K~~~~~~^~~~~~~~~[m[K
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_domain_listener.cpp:[m[K In member function ‘[01m[Kvoid DiscoveryDomainParticipantListener::set_reader_discovery_callback(on_reader_discovery_callback_t, void*)[m[K’:
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_domain_listener.cpp:163:36:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Kcallback[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wunused-parameter-Wunused-parameter]8;;[m[K]
+  163 |     [01;35m[Kon_reader_discovery_callback_t callback[m[K, void *data) {
+      |     [01;35m[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~[m[K
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_domain_listener.cpp:[m[K In member function ‘[01m[Kvoid DiscoveryDomainParticipantListener::set_writer_discovery_callback(on_writer_discovery_callback_t, void*)[m[K’:
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_domain_listener.cpp:167:36:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Kcallback[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wunused-parameter-Wunused-parameter]8;;[m[K]
+  167 |     [01;35m[Kon_writer_discovery_callback_t callback[m[K, void *data) {
+      |     [01;35m[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~[m[K

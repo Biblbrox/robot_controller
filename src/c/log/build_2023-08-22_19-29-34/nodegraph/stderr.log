@@ -1,0 +1,17 @@
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:[m[K In function ‘[01m[Kint get_node_names(int, const char**)[m[K’:
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:22:51:[m[K [01;35m[Kwarning: [m[Kno return statement in function returning non-void [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreturn-type-Wreturn-type]8;;[m[K]
+   22 | int get_node_names(int argc, const char *argv[]) {[01;35m[K}[m[K
+      |                                                   [01;35m[K^[m[K
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:22:24:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Kargc[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wunused-parameter-Wunused-parameter]8;;[m[K]
+   22 | int get_node_names([01;35m[Kint argc[m[K, const char *argv[]) {}
+      |                    [01;35m[K~~~~^~~~[m[K
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:22:42:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Kargv[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wunused-parameter-Wunused-parameter]8;;[m[K]
+   22 | int get_node_names(int argc, [01;35m[Kconst char *argv[][m[K) {}
+      |                              [01;35m[K~~~~~~~~~~~~^~~~~~[m[K
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:[m[K In function ‘[01m[Kvoid kill_server_callback(ParticipantData, void*)[m[K’:
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:101:8:[m[K [01;35m[Kwarning: [m[Kunused variable ‘[01m[Kguid[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wunused-variable-Wunused-variable]8;;[m[K]
+  101 |   auto [01;35m[Kguid[m[K = participant_data.guid;
+      |        [01;35m[K^~~~[m[K
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:99:40:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Kuser_data[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wunused-parameter-Wunused-parameter]8;;[m[K]
+   99 |                                  [01;35m[Kvoid *user_data[m[K) {
+      |                                  [01;35m[K~~~~~~^~~~~~~~~[m[K

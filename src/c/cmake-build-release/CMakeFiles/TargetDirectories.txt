@@ -1,0 +1,10 @@
+/home/biblbrox/Tesis/robot_controller/src/c/cmake-build-release/CMakeFiles/uninstall.dir
+/home/biblbrox/Tesis/robot_controller/src/c/cmake-build-release/CMakeFiles/nodegraph_uninstall.dir
+/home/biblbrox/Tesis/robot_controller/src/c/cmake-build-release/CMakeFiles/nodegraph.dir
+/home/biblbrox/Tesis/robot_controller/src/c/cmake-build-release/CMakeFiles/test.dir
+/home/biblbrox/Tesis/robot_controller/src/c/cmake-build-release/CMakeFiles/edit_cache.dir
+/home/biblbrox/Tesis/robot_controller/src/c/cmake-build-release/CMakeFiles/rebuild_cache.dir
+/home/biblbrox/Tesis/robot_controller/src/c/cmake-build-release/CMakeFiles/list_install_components.dir
+/home/biblbrox/Tesis/robot_controller/src/c/cmake-build-release/CMakeFiles/install.dir
+/home/biblbrox/Tesis/robot_controller/src/c/cmake-build-release/CMakeFiles/install/local.dir
+/home/biblbrox/Tesis/robot_controller/src/c/cmake-build-release/CMakeFiles/install/strip.dir

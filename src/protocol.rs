@@ -70,11 +70,13 @@ impl JsonProtocol {
             let msg = format!("Json request must contain command name. Please, use the followed command structure: \n{}", valid_example).to_string();
             return Err(msg);
         }
+
         let command = request.get("command").unwrap().as_str().unwrap().to_string();
         if !self.allowed_commands.contains(&command.clone()) {
             let msg = format!("You must use one of the following supported commands: {:?}. Command {} is not supported", self.allowed_commands, command.clone());
             return Err(msg);
         }
+
         self.command = command.clone();
         debug!("Command: {}", self.command);
 

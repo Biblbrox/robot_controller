@@ -1,0 +1,23 @@
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:[m[K In function ‘[01m[Kvoid kill_server_callback(ParticipantData, void*)[m[K’:
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:106:40:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Kuser_data[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wunused-parameter-Wunused-parameter]8;;[m[K]
+  106 |                                  [01;35m[Kvoid *user_data[m[K) {
+      |                                  [01;35m[K~~~~~~^~~~~~~~~[m[K
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:[m[K In function ‘[01m[Kint is_discovery_running_impl(uint32_t)[m[K’:
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:167:32:[m[K [01;31m[Kerror: [m[Ktoo few arguments to function ‘[01m[Kint run_discovery_server_impl(uint32_t, on_participant_discovery_callback_t, on_reader_discovery_callback_t, on_writer_discovery_callback_t)[m[K’
+  167 |   if ([01;31m[Krun_discovery_server_impl(domain_id, nullptr)[m[K == -1)
+      |       [01;31m[K~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~[m[K
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:68:5:[m[K [01;36m[Knote: [m[Kdeclared here
+   68 | int [01;36m[Krun_discovery_server_impl[m[K(
+      |     [01;36m[K^~~~~~~~~~~~~~~~~~~~~~~~~[m[K
+gmake[2]: *** [CMakeFiles/nodegraph.dir/build.make:93: CMakeFiles/nodegraph.dir/src/discovery_server.cpp.o] Error 1
+gmake[2]: *** Waiting for unfinished jobs....
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_domain_listener.cpp:[m[K In member function ‘[01m[Kvoid DiscoveryDomainParticipantListener::set_reader_discovery_callback(on_reader_discovery_callback_t, void*)[m[K’:
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_domain_listener.cpp:163:36:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Kcallback[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wunused-parameter-Wunused-parameter]8;;[m[K]
+  163 |     [01;35m[Kon_reader_discovery_callback_t callback[m[K, void *data) {
+      |     [01;35m[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~[m[K
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_domain_listener.cpp:[m[K In member function ‘[01m[Kvoid DiscoveryDomainParticipantListener::set_writer_discovery_callback(on_writer_discovery_callback_t, void*)[m[K’:
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_domain_listener.cpp:167:36:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Kcallback[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wunused-parameter-Wunused-parameter]8;;[m[K]
+  167 |     [01;35m[Kon_writer_discovery_callback_t callback[m[K, void *data) {
+      |     [01;35m[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~[m[K
+gmake[1]: *** [CMakeFiles/Makefile2:140: CMakeFiles/nodegraph.dir/all] Error 2
+gmake: *** [Makefile:149: all] Error 2

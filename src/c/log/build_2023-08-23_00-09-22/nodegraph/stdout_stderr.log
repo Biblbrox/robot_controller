@@ -1,0 +1,21 @@
+/usr/bin/cmake -S/home/biblbrox/Tesis/robot_controller/src/c -B/home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph --check-build-system CMakeFiles/Makefile.cmake 0
+/usr/bin/cmake -E cmake_progress_start /home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph/CMakeFiles /home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph//CMakeFiles/progress.marks
+/usr/bin/gmake  -f CMakeFiles/Makefile2 all
+gmake[1]: Entering directory '/home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph'
+/usr/bin/gmake  -f CMakeFiles/nodegraph.dir/build.make CMakeFiles/nodegraph.dir/depend
+gmake[2]: Entering directory '/home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph'
+cd /home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph && /usr/bin/cmake -E cmake_depends "Unix Makefiles" /home/biblbrox/Tesis/robot_controller/src/c /home/biblbrox/Tesis/robot_controller/src/c /home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph /home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph /home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph/CMakeFiles/nodegraph.dir/DependInfo.cmake --color=
+[35m[1mConsolidate compiler generated dependencies of target nodegraph[0m
+gmake[2]: Leaving directory '/home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph'
+/usr/bin/gmake  -f CMakeFiles/nodegraph.dir/build.make CMakeFiles/nodegraph.dir/build
+gmake[2]: Entering directory '/home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph'
+gmake[2]: Nothing to be done for 'CMakeFiles/nodegraph.dir/build'.
+gmake[2]: Leaving directory '/home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph'
+[100%] Built target nodegraph
+gmake[1]: Leaving directory '/home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph'
+/usr/bin/cmake -E cmake_progress_start /home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph/CMakeFiles 0
+-- Install configuration: ""
+-- Up-to-date: /home/biblbrox/Tesis/robot_controller/src/c/install/nodegraph/share/nodegraph/environment/library_path.sh
+-- Up-to-date: /home/biblbrox/Tesis/robot_controller/src/c/install/nodegraph/share/nodegraph/environment/library_path.dsv
+-- Installing: /home/biblbrox/Tesis/robot_controller/src/c/lib/nodegraph/libnodegraph.so
+-- Set runtime path of "/home/biblbrox/Tesis/robot_controller/src/c/lib/nodegraph/libnodegraph.so" to ""

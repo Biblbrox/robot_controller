@@ -1,32 +1,27 @@
 pub mod ros2utils {
     use std::env::Args;
     use std::ffi::OsStr;
+
     use std::process::{Command};
     use std::string::String;
     use regex;
-
     use std::sync::{Arc, Mutex};
-    use rclrs::{Context, Node};
 
-    use crate::ros2entites::ros2entities::{Host, Ros2NodeState, Ros2ActionClient, Ros2ActionServer, Ros2Executable, Ros2Node, Ros2Package, Ros2Publisher, Ros2ServiceClient, Ros2ServiceServer, Ros2State, Ros2Subscriber, Ros2Topic};
+    use rclrs::{Context, Node};
+    use crate::network::network::find_node_host;
+
+    use crate::ros2entites::ros2entities::{Ros2NodeState, Ros2ActionClient, Ros2ActionServer, Ros2Executable, Ros2Node, Ros2Package, Ros2Publisher, Ros2ServiceClient, Ros2ServiceServer, Ros2State, Ros2Subscriber, Ros2Topic, Settings};
 
     pub fn ros2_init(args: Args) -> Context {
-        let context = rclrs::Context::new(args).unwrap();
-
-        let test_node = Node::new(&context, "test_node").unwrap();
-        let node_names = test_node.get_node_names().unwrap();
-
-        println!("Domain ID: {}", test_node.domain_id());
-        for node_name in node_names {
-            println!("Node name: {}", node_name.name);
-        }
+        let context = Context::new(args).unwrap();
+        assert!(context.ok());
 
         return context;
     }
 
-    pub fn ros2_cold_state() -> Ros2State {
+    pub fn ros2_cold_state(settings: Settings) -> Ros2State {
         // Unsupported for now!!!
-        let nodes: Vec<Ros2Node> = explore_nodes();
+        let nodes: Vec<Ros2Node> = explore_nodes(settings);
         //let packages: Vec<Ros2Package> = explore_packages();
         let packages: Vec<Ros2Package> = Vec::new();
 
@@ -39,9 +34,9 @@ pub mod ros2utils {
         return state;
     }
 
-    pub fn ros2_hot_state() -> Ros2State {
+    pub fn ros2_hot_state(settings: Settings) -> Ros2State {
         // Unsupported for now!!!
-        let nodes: Vec<Ros2Node> = explore_nodes();
+        let nodes: Vec<Ros2Node> = explore_nodes(settings);
         let topics: Vec<Ros2Topic> = explore_topics();
         //let packages: Vec<Ros2Package> = packages();
 
@@ -54,8 +49,8 @@ pub mod ros2utils {
         return state;
     }
 
-    pub fn ros2_state(current_state: Arc<Mutex<Ros2State>>) -> Ros2State {
-        let nodes: Vec<Ros2Node> = explore_nodes();
+    pub fn ros2_state(current_state: Arc<Mutex<Ros2State>>, settings: Settings) -> Ros2State {
+        let nodes: Vec<Ros2Node> = explore_nodes(settings);
         let mut packages: Vec<Ros2Package> = Vec::new();
         if current_state.lock().unwrap().packages.is_empty() {
             packages = explore_packages();
@@ -74,7 +69,7 @@ pub mod ros2utils {
         return state;
     }
 
-    pub fn explore_nodes() -> Vec<Ros2Node> {
+    pub fn explore_nodes(settings: Settings) -> Vec<Ros2Node> {
         let node_names = ros2_node_names();
         let mut nodes: Vec<Ros2Node> = Vec::new();
         for node_name in node_names {
@@ -132,6 +127,7 @@ pub mod ros2utils {
                 false => Ros2NodeState::NonLifecycle
             };
 
+            let host = find_node_host(node_name.clone(), settings.domain_id);
             // TODO: to know package name of each node
             nodes.push(Ros2Node {
                 name: node_name.clone(),
@@ -142,7 +138,7 @@ pub mod ros2utils {
                 action_servers,
                 service_clients,
                 service_servers,
-                host: Host::new(),
+                host,
                 is_lifecycle,
                 state: lifecycle_state,
             })
@@ -166,13 +162,23 @@ pub mod ros2utils {
     }
 
     pub fn lifecycle_state(node_name: String) -> Ros2NodeState {
-        let data_bytes = Command::new("ros2")
+        /*let mut lifecycle_get_command = Command::new("ros2")
             .arg("lifecycle")
             .arg("get")
             .arg(node_name)
-            .output()
-            .expect("failed to execute process");
-        let state_str: String = match String::from_utf8(data_bytes.stdout) {
+            .spawn().unwrap();
+
+        let timeout = Duration::from_secs(1);
+        let status_code = match lifecycle_get_command.wait_timeout(timeout).unwrap() {
+            Some(status) => status.code(),
+            None => {
+                // child hasn't exited yet
+                lifecycle_get_command.kill().unwrap();
+                lifecycle_get_command.wait().unwrap().code()
+            }
+        };
+
+        let state_str: String = match String::from_utf8(lifecycle_get_command.stdout.unwrap()) {
             Ok(v) => v.split_whitespace().next().unwrap().to_string(),
             Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
         };
@@ -185,7 +191,9 @@ pub mod ros2utils {
             _ => Ros2NodeState::NonLifecycle
         };
 
-        return state;
+        return state;*/
+
+        return Ros2NodeState::Active;
     }
 
     pub fn lifecycled_node_names() -> Vec<String> {
@@ -415,6 +423,10 @@ pub mod ros2utils {
     }*/
 
     pub fn ros2_node_names() -> Vec<String> {
+
+        //xml_rpc::client::Client::new("http://localhost:11311");
+
+
         let node_bytes_str = Command::new("ros2")
             .arg("node")
             .arg("list")

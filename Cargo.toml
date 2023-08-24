@@ -2,10 +2,14 @@
 name = "ros2monitor"
 version = "0.1.0"
 edition = "2021"
+build = "build.rs"
+links = "libnodegraph"
+
+
 
 [dependencies]
 rclrs = "0.3.1"
-anyhow = { version = "1", features = ["backtrace"] }
+#anyhow = { version = "1", features = ["backtrace"] }
 rosidl_runtime_rs = "0.3"
 daemonize = "0.5.0"
 json = "0.12.4"
@@ -20,5 +24,14 @@ simple_logger = "4.2.0"
 regex = "1.8.4"
 sysinfo = "0.29.3"
 pcap = "1.1.0"
-snoopy = "0.3.2"
-pktparse = "0.7.1"
+pktparse = {version = "0.7.1", features = ["serde"]}
+threadpool = "1.8.1"
+tls-parser = "0.11.0"
+num_cpus = "1.16.0"
+dns-parser = "0.8.0"
+rtsp-types = "0.1.0"
+wait-timeout = "0.2.0"
+xml-rpc = "0.0.12"
+xmlrpc = "0.15.1"
+cc = "1.0.82"
+ctrlc = "3.4.0"

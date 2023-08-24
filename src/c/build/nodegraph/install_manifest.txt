@@ -1,0 +1,3 @@
+/home/biblbrox/Tesis/robot_controller/src/c/install/nodegraph/share/nodegraph/environment/library_path.sh
+/home/biblbrox/Tesis/robot_controller/src/c/install/nodegraph/share/nodegraph/environment/library_path.dsv
+/home/biblbrox/Tesis/robot_controller/src/c/lib/nodegraph/libnodegraph.so

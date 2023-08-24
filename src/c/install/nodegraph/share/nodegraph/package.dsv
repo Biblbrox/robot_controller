@@ -1,0 +1,5 @@
+source;share/nodegraph/local_setup.bash
+source;share/nodegraph/local_setup.dsv
+source;share/nodegraph/local_setup.ps1
+source;share/nodegraph/local_setup.sh
+source;share/nodegraph/local_setup.zsh
