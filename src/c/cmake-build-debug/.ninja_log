@@ -1,8 +1,9 @@
 # ninja log v5
-2709	2969	1692738253064301030	libnodegraph.so	6d5d13e3d200bf6f
-1	641	1692794847362228539	build.ninja	fdd40b6b89b34be4
-1	2304	1692738252402395047	CMakeFiles/nodegraph.dir/src/ros2binds.cpp.o	e82411f027d862d7
+1481	1698	1694108703299134271	libnodegraph.so	f2bfbfbc0efc3a0b
+1	615	1694159682478235616	build.ninja	fdd40b6b89b34be4
+1	569	1694108702175137469	CMakeFiles/nodegraph.dir/src/network.cpp.o	2f5a2b1e27f7da71
+2	3159	1693053754522199383	CMakeFiles/nodegraph.dir/src/ros2binds.cpp.o	e82411f027d862d7
 0	3	0	clean	1963c179346d45f2
 1	5	0	CMakeFiles/install.util	2aea091e27c9b5b
-1	2709	1692738252804475700	CMakeFiles/nodegraph.dir/src/discovery_domain_listener.cpp.o	83a03d650e0306c9
-1	2032	1692736813742020787	CMakeFiles/nodegraph.dir/src/discovery_server.cpp.o	8ed7e1f68bc677f0
+1	1481	1694108703083134876	CMakeFiles/nodegraph.dir/src/discovery_domain_listener.cpp.o	83a03d650e0306c9
+3	2129	1694084882229427444	CMakeFiles/nodegraph.dir/src/discovery_server.cpp.o	8ed7e1f68bc677f0

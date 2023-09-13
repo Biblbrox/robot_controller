@@ -62,7 +62,7 @@ if (BUILD_EXECUTABLE)
 else ()
     message("Building library")
     list(REMOVE_ITEM SOURCES "src/main.cpp")
-    add_library(${PROJECT_NAME} SHARED ${SOURCES} src/ros2binds.cpp)
+    add_library(${PROJECT_NAME} SHARED ${SOURCES})
 endif ()
 
 set(ROS_VERSION humble)

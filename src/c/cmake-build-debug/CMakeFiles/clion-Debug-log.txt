@@ -10,6 +10,6 @@
 -- Using RMW implementation 'rmw_fastrtps_cpp' as default
 -- Found sensor_msgs: 4.2.3 (/opt/ros/humble/share/sensor_msgs/cmake)
 Building library
--- Configuring done (1.2s)
+-- Configuring done (0.9s)
 -- Generating done (0.0s)
 -- Build files have been written to: /home/biblbrox/Tesis/robot_controller/src/c/cmake-build-debug
