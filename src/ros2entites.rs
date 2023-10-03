@@ -1,3 +1,9 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 pub mod ros2entities {
     use std::cmp::min;
     use std::string::String;
@@ -7,11 +13,12 @@ pub mod ros2entities {
     pub struct Settings {
         pub domain_id: u32,
         pub include_internals: bool,
+        pub dds_topic_type: bool
     }
 
     impl Settings {
         pub fn new() -> Settings {
-            return Settings { domain_id: 0, include_internals: false };
+            return Settings { domain_id: 0, include_internals: false, dds_topic_type: false };
         }
 
         pub fn from_json(json: &str) -> Settings {
@@ -129,13 +136,12 @@ pub mod ros2entities {
 
         pub fn add_publisher(&mut self, publisher: Ros2Publisher) {
             let node_name = publisher.node_name.clone();
-            let publishers: Vec<Ros2Publisher>;
-            if (self.is_internal(publisher.clone().topic_name) && self.include_internals)
-                || !self.is_internal(publisher.clone().topic_name.clone()) {
-                publishers = vec![publisher.clone()];
+            let is_internal = self.is_internal(publisher.topic_name.clone());
+            let publishers = if (is_internal && self.include_internals) || !is_internal {
+                vec![publisher.clone()]
             } else {
-                publishers = vec![];
-            }
+                vec![]
+            };
             if !node_name.starts_with("_") || self.include_internals {
                 let mut node = self.nodes.iter_mut().find(|node| node.name == node_name);
                 if node.is_none() {
@@ -171,13 +177,13 @@ pub mod ros2entities {
 
         pub fn add_subscriber(&mut self, subscriber: Ros2Subscriber) {
             let node_name = subscriber.node_name.clone();
-            let subscribers: Vec<Ros2Subscriber>;
-            if (self.is_internal(subscriber.clone().topic_name) && self.include_internals)
-                || !self.is_internal(subscriber.clone().topic_name.clone()) {
-                subscribers = vec![subscriber.clone()];
+            let is_internal = self.is_internal(subscriber.topic_name.clone());
+            let subscribers: Vec<Ros2Subscriber> = if (is_internal && self.include_internals) || !is_internal {
+                vec![subscriber.clone()]
             } else {
-                subscribers = vec![];
-            }
+                vec![]
+            };
+
             if !node_name.starts_with("_") || self.include_internals {
                 let mut node = self.nodes.iter_mut().find(|node| node.name == node_name);
                 if node.is_none() {

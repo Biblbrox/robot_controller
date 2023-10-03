@@ -1,9 +1,15 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 pub mod fastdds_server {
-    use std::sync::{mpsc};
     use ::std::os::raw::c_void;
     use std::mem::transmute;
-    use std::sync::mpsc::SendError;
+    use flume::SendError;
     use std::thread;
+    use log::debug;
     use crate::discovery_server_impl::{DiscoveryServerParams, ParticipantData, ReaderData, register_on_participant_discovery_data, register_on_participant_removed_data, register_on_reader_discovery_data, register_on_reader_removed_data, register_on_writer_discovery_data, register_on_writer_removed_data, run_discovery_server_impl, WriterData};
     use crate::fastdds_server::fastdds_server::FastDDSEntity::Context;
     use crate::network::network::{fastdds_to_ros2, hex_str_from_uc, parse_endpoint, string_from_c};
@@ -37,13 +43,13 @@ pub mod fastdds_server {
         pub on_reader_removed: ReadFunc,
         pub on_writer_removed: WriteFunc,
         pub running: bool,
-        pub rx: mpsc::Receiver<(FastDDSEvent, FastDDSEntity)>,
+        pub rx: flume::Receiver<(FastDDSEvent, FastDDSEntity)>,
         //pub tx: mpsc::Sender<FastDDSEntity>,
     }
 
     impl FastDDSDiscoverer {
         pub fn new(domain_id: u32) -> FastDDSDiscoverer {
-            let (tx, rx) = mpsc::channel::<(FastDDSEvent, FastDDSEntity)>();
+            let (tx, rx) = flume::unbounded::<(FastDDSEvent, FastDDSEntity)>();
 
             let tx_participant_discovery = tx.clone();
             let on_participant_discovery = Box::new(move |participant_data: ParticipantData| {
@@ -62,8 +68,11 @@ pub mod fastdds_server {
 
             let tx_reader_discovery = tx.clone();
             let on_reader_discovery = Box::new(move |reader_data: ReaderData| {
-                let topic_name = fastdds_to_ros2(string_from_c(reader_data.topic_name));
+                let mut topic_name = fastdds_to_ros2(string_from_c(reader_data.topic_name));
                 let topic_type = string_from_c(reader_data.type_name);
+                if !topic_name.starts_with("/") {
+                    topic_name = "/".to_string() + topic_name.as_str();
+                }
                 let guid = hex_str_from_uc(reader_data.guid_prefix);
                 let endpoint = parse_endpoint(reader_data.endpoint);
 
@@ -83,18 +92,22 @@ pub mod fastdds_server {
 
             let tx_writer_discovery = tx.clone();
             let on_writer_discovery = Box::new(move |writer_data: WriterData| {
-                let topic_name = fastdds_to_ros2(string_from_c(writer_data.topic_name));
+                let mut topic_name = fastdds_to_ros2(string_from_c(writer_data.topic_name));
                 let topic_type = string_from_c(writer_data.type_name);
+                if !topic_name.starts_with("/") {
+                    topic_name = "/".to_string() + topic_name.as_str();
+                }
                 let guid = hex_str_from_uc(writer_data.guid_prefix);
                 let endpoint = parse_endpoint(writer_data.endpoint);
 
                 let publisher = Ros2Publisher {
-                    topic_name,
+                    topic_name: topic_name.clone(),
                     guid,
                     node_name: "unknown".to_string(),
                     topic_type,
                     host: Host::new(endpoint, "unknown".to_string()),
                 };
+
                 let entity: FastDDSEntity = FastDDSEntity::Publisher(publisher);
                 match tx_writer_discovery.send((FastDDSEvent::PublisherDiscovered, entity)) {
                     Ok(()) => {}
@@ -116,8 +129,11 @@ pub mod fastdds_server {
             });
             let tx_reader_removed = tx.clone();
             let on_reader_removed = Box::new(move |reader_data: ReaderData| {
-                let topic_name = fastdds_to_ros2(string_from_c(reader_data.topic_name));
+                let mut topic_name = fastdds_to_ros2(string_from_c(reader_data.topic_name));
                 let topic_type = string_from_c(reader_data.type_name);
+                if !topic_name.starts_with("/") {
+                    topic_name = "/".to_string() + topic_name.as_str();
+                }
                 let guid = hex_str_from_uc(reader_data.guid_prefix);
                 let endpoint = parse_endpoint(reader_data.endpoint);
 
@@ -136,8 +152,11 @@ pub mod fastdds_server {
             });
             let tx_writer_removed = tx.clone();
             let on_writer_removed = Box::new(move |writer_data: WriterData| {
-                let topic_name = fastdds_to_ros2(string_from_c(writer_data.topic_name));
+                let mut topic_name = fastdds_to_ros2(string_from_c(writer_data.topic_name));
                 let topic_type = string_from_c(writer_data.type_name);
+                if !topic_name.starts_with("/") {
+                    topic_name = "/".to_string() + topic_name.as_str();
+                }
                 let guid = hex_str_from_uc(writer_data.guid_prefix);
                 let endpoint = parse_endpoint(writer_data.endpoint);
 

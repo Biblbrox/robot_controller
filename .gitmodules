@@ -1,3 +1,0 @@
-#[submodule "src/snoopy"]
-#	path = src/snoopy
-#	url = https://github.com/Biblbrox/snoopy.git

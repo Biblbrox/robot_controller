@@ -1,3 +1,9 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
 #include <fastrtps/fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastrtps/fastdds/rtps/common/Types.h>
 
@@ -26,7 +32,7 @@ void DiscoveryDomainParticipantListener::on_participant_discovery(
 
         if (m_on_participant_discovery) {
             assert(m_on_participant_discovery_data != nullptr);
-            std::cout << "cpp: m_on_participant_discovery\n";
+            //std::cout << "cpp: m_on_participant_discovery\n";
             m_on_participant_discovery(participant_data,
                                        m_on_participant_discovery_data);
         }
@@ -62,7 +68,7 @@ void DiscoveryDomainParticipantListener::on_subscriber_discovery(
             /* Process the case when a new subscriber was found in the domain */
             if (m_on_reader_discovery) {
                 assert(m_on_reader_discovery_data != nullptr);
-                std::cout << "cpp: on_subscriber_discovery\n";
+                //std::cout << "cpp: on_subscriber_discovery\n";
                 ReaderData reader_data = reader_info();
                 m_on_reader_discovery(reader_data, m_on_reader_discovery_data);
             }
@@ -101,7 +107,7 @@ void DiscoveryDomainParticipantListener::on_publisher_discovery(
             /* Process the case when a new publisher was found in the domain */
             if (m_on_writer_discovery) {
                 assert(m_on_writer_discovery_data != nullptr);
-                std::cout << "cpp: on_publisher_discovery\n";
+                //std::cout << "cpp: on_publisher_discovery\n";
                 WriterData writer_data = writer_info();
                 m_on_writer_discovery(writer_data, m_on_writer_discovery_data);
             }

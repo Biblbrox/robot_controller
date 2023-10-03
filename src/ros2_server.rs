@@ -1,3 +1,9 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 pub mod ros2_server {
     use std::ffi::OsStr;
     use std::io;
@@ -13,8 +19,7 @@ pub mod ros2_server {
     use crate::ros2entites::ros2entities::{Host, Ros2ActionClient, Ros2ActionServer, Ros2Executable, Ros2Node, Ros2NodeState, Ros2Package, Ros2Publisher, Ros2ServiceClient, Ros2ServiceServer, Ros2Subscriber, Ros2Topic, Settings};
     use grep_searcher::{Searcher, SearcherBuilder, Sink, SinkContext, SinkMatch};
     use grep_searcher::sinks::UTF8;
-    use log::warn;
-    use tls_parser::nom::ToUsize;
+    use log::{debug, warn};
 
     #[derive(Clone)]
     pub struct Ros2DiscovererParams {
@@ -191,6 +196,7 @@ pub mod ros2_server {
                 .arg("pkg")
                 .arg("executables")
                 .arg("--full-path")
+                .env("FASTRTPS_DEFAULT_PROFILES_FILE", "super_client_configuration_file.xml")
                 .output()
                 .expect("failed to execute process");
             let executables_info: Vec<String> = match String::from_utf8(executables_info_bytes.stdout) {
@@ -223,6 +229,7 @@ pub mod ros2_server {
             let topics_bytes_str = Command::new("ros2")
                 .arg("topic")
                 .arg("list")
+                .env("FASTRTPS_DEFAULT_PROFILES_FILE", "super_client_configuration_file.xml")
                 .output()
                 .expect("Failed to retrieve topic list from ros2");
 
@@ -239,6 +246,7 @@ pub mod ros2_server {
             let node_bytes_str = Command::new("ros2")
                 .arg("pkg")
                 .arg("list")
+                .env("FASTRTPS_DEFAULT_PROFILES_FILE", "super_client_configuration_file.xml")
                 .output()
                 .expect("failed to execute process");
 
@@ -276,12 +284,24 @@ pub mod ros2_server {
             return topics;
         }
 
+        pub fn topic_type(&self, topic_name: String) -> Result<String, String> {
+            let info = self.topic_info(topic_name.clone());
+            let topic_type_pattern = "Topic type";
+            if !info.contains(topic_type_pattern) {
+                return Err("Unable to find topic info".to_string());
+            }
+            let type_line = info.lines().find(|line| line.contains(topic_type_pattern)).unwrap();
+            let topic_type = type_line.split(": ").collect::<Vec<&str>>()[1];
+            return Ok(topic_type.to_string());
+        }
+
         pub fn topic_info(&self, topic_name: String) -> String {
             let data_bytes = Command::new("ros2")
                 .arg("topic")
                 .arg("info")
                 .arg(topic_name.clone())
                 .arg("--verbose")
+                .env("FASTRTPS_DEFAULT_PROFILES_FILE", "super_client_configuration_file.xml")
                 .output()
                 .expect(format!("Failed to obtain info for topic {}", topic_name).as_str());
             let info: String = match String::from_utf8(data_bytes.stdout) {
@@ -317,6 +337,7 @@ pub mod ros2_server {
                 .arg("prefix")
                 .arg(package_name)
                 .arg("--share")
+                .env("FASTRTPS_DEFAULT_PROFILES_FILE", "super_client_configuration_file.xml")
                 .output()
                 .expect("failed to execute process");
             //String::from_utf8(node_bytes_str.stdout);
@@ -331,6 +352,7 @@ pub mod ros2_server {
             let node_bytes_str = Command::new("ros2")
                 .arg("node")
                 .arg("list")
+                .env("FASTRTPS_DEFAULT_PROFILES_FILE", "super_client_configuration_file.xml")
                 .output()
                 .expect("failed to execute process");
 
@@ -347,6 +369,7 @@ pub mod ros2_server {
             let node_bytes_str = Command::new("ros2")
                 .arg("pkg")
                 .arg("list")
+                .env("FASTRTPS_DEFAULT_PROFILES_FILE", "super_client_configuration_file.xml")
                 .output()
                 .expect("failed to execute process");
 
@@ -359,7 +382,7 @@ pub mod ros2_server {
             return node_names;
         }
 
-        pub fn node_name_by_gid(&self, mut topic_name: String, gid_search: String) -> String {
+        pub fn node_name_by_gid(&self, mut topic_name: String, guid: String) -> String {
             if !topic_name.starts_with('/') {
                 topic_name = "/".to_string() + topic_name.as_str();
             }
@@ -368,6 +391,7 @@ pub mod ros2_server {
                 .arg("info")
                 .arg(topic_name.clone())
                 .arg("--verbose")
+                .env("FASTRTPS_DEFAULT_PROFILES_FILE", "super_client_configuration_file.xml")
                 .output()
                 .expect("failed to execute process");
 
@@ -396,7 +420,8 @@ pub mod ros2_server {
                     let mut iter = line.split(": ");
                     iter.next();
                     let gid = iter.next().unwrap();
-                    if gid.starts_with(gid_search.as_str()) {
+                    let four_octets = guid[0..11].to_string();
+                    if gid.starts_with(four_octets.as_str()) {
                         return node_name;
                     }
                 }
@@ -410,6 +435,7 @@ pub mod ros2_server {
                 .arg("pkg")
                 .arg("executables")
                 .arg(package_name)
+                .env("FASTRTPS_DEFAULT_PROFILES_FILE", "super_client_configuration_file.xml")
                 .output()
                 .expect("failed to execute process");
 
@@ -427,6 +453,7 @@ pub mod ros2_server {
                 .arg("node")
                 .arg("info")
                 .arg(node_name)
+                .env("FASTRTPS_DEFAULT_PROFILES_FILE", "super_client_configuration_file.xml")
                 .output()
                 .expect("failed to execute process");
             let info: String = match String::from_utf8(data_bytes.stdout) {
@@ -527,14 +554,3 @@ pub mod ros2_server {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use log::debug;
-    use crate::ros2_server::ros2_server::{Ros2Discoverer, Ros2DiscovererParams};
-
-    #[test]
-    fn node_name_by_gid_test() {
-        //let ros2_discoverer = Ros2Discoverer::new(Ros2DiscovererParams { domain_id: 0, interval: 1000 });
-        //ros2_discoverer.node_name_by_gid("/turtle1/cmd_vel".to_string(), "0x7f0000000001".to_string());
-    }
-}

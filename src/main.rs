@@ -1,3 +1,9 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 extern crate core;
 
 use std::env::args;
@@ -12,6 +18,7 @@ use std::path::Path;
 use std::process::{Command, exit};
 use std::sync::{Arc};
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::thread::sleep;
 use std::time::Duration;
 use futures::TryFutureExt;
 
@@ -21,7 +28,6 @@ use tokio::runtime::Runtime;
 use log::{debug, error, info, trace};
 use crate::ros2entites::ros2entities::{Ros2State, Settings};
 
-use tls_parser::nom::{AsChar, HexDisplay, ToUsize};
 use tokio::{time};
 use tokio::sync::{Mutex};
 use crate::api::api::Api;
@@ -32,7 +38,6 @@ use crate::discovery_server::discovery_server::{DiscoveryFlags, DiscoveryServer}
 use crate::ros2_wrapper::ros2;
 
 
-mod snoopy;
 mod ros2entites;
 mod ros2utils;
 mod api;
@@ -72,14 +77,17 @@ fn main() -> io::Result<()> {
     env::set_var("ROS_DISCOVERY_SERVER", "0.0.0.0:11811");
     env::set_var("FASTRTPS_DEFAULT_PROFILES_FILE", "super_client_configuration_file.xml");
 
+
     Command::new("ros2").arg("daemon").arg("stop").output().unwrap();
     Command::new("ros2").arg("daemon").arg("start").output().unwrap();
+    sleep(Duration::from_secs(1));
 
-    simple_logger::init_with_level(log::Level::Trace).unwrap();
+    simple_logger::init_with_level(log::Level::Debug).unwrap();
 
     let settings: Settings = Settings {
         domain_id: 1,
         include_internals: false,
+        dds_topic_type: false,
     };
 
     let ctrlc_pressed: Arc<AtomicBool> = Arc::new(AtomicBool::new(false));
@@ -97,10 +105,6 @@ fn main() -> io::Result<()> {
     }
 
     let (mut rx_state, mut discovery_server) = DiscoveryServer::new(settings.domain_id, discovery_flags);
-    /*if discovery_server.is_running() {
-        warn!("Discovery server is already running. Trying to stop it");
-        discovery_server.stop();
-    }*/
 
     let rt = Runtime::new().unwrap();
     let _guard = rt.enter();

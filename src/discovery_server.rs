@@ -1,3 +1,9 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 pub mod discovery_server {
     use std::ffi::OsStr;
     use std::sync::{Arc, mpsc, Mutex};
@@ -10,7 +16,6 @@ pub mod discovery_server {
     use log::{debug, warn};
     use serde::de::Unexpected::Option;
     use single_value_channel::channel_starting_with;
-    use tls_parser::parse_content_and_signature;
     use crate::discovery_server_impl::{ParticipantData, ReaderData, stop_discovery_server_impl, WriterData};
     use crate::fastdds_server::fastdds_server::{FastDDSDiscoverer, FastDDSEntity, FastDDSEvent, PartFunc, ReadFunc, WriteFunc};
     use crate::network::network::{hostname_ip, parse_endpoint};
@@ -25,6 +30,7 @@ pub mod discovery_server {
             const EnableFastdds = 0b00000001;
             const EnableROS2 = 0b00000010;
             const IncludeInternals = 0b00000100;
+            const UseInternalNames = 0b00001000;
         }
     }
 
@@ -119,7 +125,6 @@ pub mod discovery_server {
             //if !self.discovery_flags.contains(DiscoveryFlags::IncludeInternals) && self.is_internal(publisher.clone().topic_name) {
             //    return;
             //}
-
             publisher.node_name = match self.node_name_by_gid(publisher.topic_name.clone(), publisher.guid.clone()) {
                 Ok(node_name) => node_name,
                 Err(_error_str) => "unknown".to_string()
@@ -127,7 +132,15 @@ pub mod discovery_server {
             if publisher.host.ip != "SHM" {
                 publisher.host.name = hostname_ip(publisher.clone().host.ip);
             }
-            self.show_pub_info(publisher.clone());
+            publisher.topic_type = if self.discovery_flags.contains(DiscoveryFlags::UseInternalNames) {
+                publisher.topic_type
+            } else {
+                match self.topic_type_by_name(publisher.topic_name.clone()) {
+                    Ok(name) => name,
+                    Err(err) => publisher.topic_type.clone()
+                }
+            };
+            self.show_pub_info(publisher.clone(), false);
 
             if !publisher.node_name.is_empty() && publisher.node_name != "_NODE_NAME_UNKNOWN_" {
                 self.state.lock().unwrap().add_publisher(publisher.clone());
@@ -150,7 +163,15 @@ pub mod discovery_server {
             if subscriber.host.ip != "SHM" {
                 subscriber.host.name = hostname_ip(subscriber.clone().host.ip);
             }
-            self.show_sub_info(subscriber.clone());
+            subscriber.topic_type = if self.discovery_flags.contains(DiscoveryFlags::UseInternalNames) {
+                subscriber.topic_type
+            } else {
+                match self.topic_type_by_name(subscriber.topic_name.clone()) {
+                    Ok(name) => name,
+                    Err(err) => subscriber.topic_type.clone()
+                }
+            };
+            self.show_sub_info(subscriber.clone(), false);
             if !subscriber.node_name.is_empty() && subscriber.node_name != "_NODE_NAME_UNKNOWN_" {
                 self.state.lock().unwrap().add_subscriber(subscriber.clone());
                 let res = self.state_tx.update(Some(self.state.lock().unwrap().clone()));
@@ -163,8 +184,12 @@ pub mod discovery_server {
 
         fn handle_discovered_context(&self, context: Ros2Context) {}
 
-        fn show_sub_info(&self, subscriber: Ros2Subscriber) {
-            debug!("------------------------On reader discovery-----------------------");
+        fn show_sub_info(&self, subscriber: Ros2Subscriber, removed: bool) {
+            if removed {
+                debug!("------------------------On reader removed-----------------------");
+            } else {
+                debug!("------------------------On reader discovery-----------------------");
+            }
             debug!("Node name: {}", subscriber.node_name);
             debug!("Topic name: {}", subscriber.topic_name);
             debug!("Topic type: {}", subscriber.topic_type);
@@ -174,8 +199,12 @@ pub mod discovery_server {
             debug!("------------------------------------------------------------------");
         }
 
-        fn show_pub_info(&self, publisher: Ros2Publisher) {
-            debug!("------------------------On writer removed-----------------------");
+        fn show_pub_info(&self, publisher: Ros2Publisher, removed: bool) {
+            if removed {
+                debug!("------------------------On writer removed-----------------------");
+            } else {
+                debug!("------------------------On writer discovery-----------------------");
+            }
             debug!("Node name: {}", publisher.node_name);
             debug!("Topic name: {}", publisher.topic_name);
             debug!("Topic type: {}", publisher.topic_type);
@@ -190,10 +219,18 @@ pub mod discovery_server {
                 Ok(node_name) => node_name,
                 Err(_error_str) => "unknown".to_string()
             };
+            publisher.topic_type = if self.discovery_flags.contains(DiscoveryFlags::UseInternalNames) {
+                publisher.topic_type
+            } else {
+                match self.topic_type_by_name(publisher.topic_name.clone()) {
+                    Ok(name) => name,
+                    Err(err) => publisher.topic_type.clone()
+                }
+            };
             if publisher.host.ip != "SHM" {
                 publisher.host.name = hostname_ip(publisher.clone().host.ip);
             }
-            self.show_pub_info(publisher.clone());
+            self.show_pub_info(publisher.clone(), true);
             if !publisher.node_name.is_empty() && publisher.node_name != "_NODE_NAME_UNKNOWN_" {
                 self.state.lock().unwrap().remove_publisher(publisher.clone());
                 let res = self.state_tx.update(Some(self.state.lock().unwrap().clone()));
@@ -212,7 +249,15 @@ pub mod discovery_server {
             if subscriber.host.ip != "SHM" {
                 subscriber.host.name = hostname_ip(subscriber.clone().host.ip);
             }
-            self.show_sub_info(subscriber.clone());
+            subscriber.topic_type = if self.discovery_flags.contains(DiscoveryFlags::UseInternalNames) {
+                subscriber.topic_type
+            } else {
+                match self.topic_type_by_name(subscriber.topic_name.clone()) {
+                    Ok(name) => name,
+                    Err(err) => subscriber.topic_type.clone()
+                }
+            };
+            self.show_sub_info(subscriber.clone(), true);
             if !subscriber.node_name.is_empty() && subscriber.node_name != "_NODE_NAME_UNKNOWN_" {
                 self.state.lock().unwrap().remove_subscriber(subscriber.clone());
                 let res = self.state_tx.update(Some(self.state.lock().unwrap().clone()));
@@ -230,13 +275,13 @@ pub mod discovery_server {
             debug!("run_discovery_server");
 
             // Discover packages
-            if self.discovery_flags.contains(DiscoveryFlags::EnableROS2) {
+            /*if self.discovery_flags.contains(DiscoveryFlags::EnableROS2) {
                 // We have to explore package once at booting or by request
                 let packages = self.ros2_discoverer.explore_packages();
                 for package in packages {
                     self.state.lock().unwrap().add_package(package);
                 }
-            }
+            }*/
 
             // FastDDS callbacks
             // init fastdds discovery server
@@ -244,36 +289,37 @@ pub mod discovery_server {
                 self.fastdds_discoverer.run();
             }
 
-            let rx = &self.fastdds_discoverer.rx;
+
             let handle_event_pub = |publisher: Ros2Publisher, event_type: FastDDSEvent| {
                 match event_type {
                     FastDDSEvent::PublisherDiscovered => self.handle_discovered_publisher(publisher),
                     FastDDSEvent::PublisherRemoved => self.handle_removed_publisher(publisher),
-                    _ => {}
+                    _ => { panic!("It shouldn't be happened") }
                 };
             };
             let handle_event_sub = |subscriber: Ros2Subscriber, event_type: FastDDSEvent| {
                 match event_type {
                     FastDDSEvent::SubscriberDiscovered => self.handle_discovered_subscriber(subscriber),
                     FastDDSEvent::SubscriberRemoved => self.handle_removed_subscriber(subscriber),
-                    _ => {}
+                    _ => { panic!("It shouldn't be happened") }
                 }
             };
             let handle_event_context = |context: Ros2Context, event_type: FastDDSEvent| {
                 match event_type {
                     FastDDSEvent::ContextDiscovered => self.handle_discovered_context(context),
                     FastDDSEvent::ContextRemoved => self.handle_removed_context(context),
-                    _ => {}
+                    _ => { panic!("It shouldn't be happened") }
                 }
             };
-
-            for (event_type, data) in rx {
+            while let Ok((event_type, data)) = self.fastdds_discoverer.rx.recv() {
                 match data {
                     FastDDSEntity::Publisher(publisher) => handle_event_pub(publisher, event_type),
                     FastDDSEntity::Subscriber(subscriber) => handle_event_sub(subscriber, event_type),
-                    FastDDSEntity::Context(context) => handle_event_context(context, event_type)
+                    FastDDSEntity::Context(context) => handle_event_context(context, event_type),
+                    _ => { panic!("It shouldn't be happened") }
                 }
             }
+            panic!("AAAAAAAAAAAAAAAAAAAAA");
         }
 
         pub fn stop(&self) {
@@ -451,6 +497,13 @@ pub mod discovery_server {
                 return Err("You must enable ros2 support and run discovery server to perform this action".to_string());
             }
             Ok(self.ros2_discoverer.node_name_by_gid(topic_name, gid_search))
+        }
+
+        pub fn topic_type_by_name(&self, topic_name: String) -> Result<String, String> {
+            if !self.discovery_flags.contains(DiscoveryFlags::EnableROS2) {
+                return Err("You must enable ros2 support and run discovery server to perform this action".to_string());
+            }
+            self.ros2_discoverer.topic_type(topic_name)
         }
 
         pub fn ros2_executable_names(&self, package_name: String) -> Result<Vec<String>, String> {
