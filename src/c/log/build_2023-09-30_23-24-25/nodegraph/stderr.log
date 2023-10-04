@@ -1,0 +1,5 @@
+[0mBuilding library[0m
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:[m[K In function ‘[01m[Kvoid kill_server_callback(ParticipantData, void*)[m[K’:
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:121:74:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Kuser_data[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wunused-parameter-Wunused-parameter]8;;[m[K]
+  121 | static void kill_server_callback(ParticipantData participant_data, [01;35m[Kvoid *user_data[m[K)
+      |                                                                    [01;35m[K~~~~~~^~~~~~~~~[m[K

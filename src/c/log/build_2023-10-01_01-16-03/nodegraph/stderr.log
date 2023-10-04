@@ -1,0 +1,7 @@
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_domain_listener.cpp:[m[K In lambda function:
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_domain_listener.cpp:52:56:[m[K [01;31m[Kerror: [m[K‘[01m[Kconst class eprosima::fastrtps::rtps::ReaderProxyData[m[K’ has no member named ‘[01m[Kpersistence_guid[m[K’
+   52 |         std::memcpy(reader_data.guid_prefix, info.info.[01;31m[Kpersistence_guid[m[K().guidPrefix.value,
+      |                                                        [01;31m[K^~~~~~~~~~~~~~~~[m[K
+gmake[2]: *** [CMakeFiles/nodegraph.dir/build.make:79: CMakeFiles/nodegraph.dir/src/discovery_domain_listener.cpp.o] Error 1
+gmake[1]: *** [CMakeFiles/Makefile2:140: CMakeFiles/nodegraph.dir/all] Error 2
+gmake: *** [Makefile:149: all] Error 2

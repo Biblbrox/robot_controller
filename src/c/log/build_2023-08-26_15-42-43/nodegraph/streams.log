@@ -1,0 +1,25 @@
+[0.013s] Invoking command in '/home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph -- -j16 -l16
+[0.022s] /usr/bin/cmake -S/home/biblbrox/Tesis/robot_controller/src/c -B/home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph --check-build-system CMakeFiles/Makefile.cmake 0
+[0.031s] /usr/bin/cmake -E cmake_progress_start /home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph/CMakeFiles /home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph//CMakeFiles/progress.marks
+[0.038s] /usr/bin/gmake  -f CMakeFiles/Makefile2 all
+[0.039s] gmake[1]: Entering directory '/home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph'
+[0.039s] /usr/bin/gmake  -f CMakeFiles/nodegraph.dir/build.make CMakeFiles/nodegraph.dir/depend
+[0.042s] gmake[2]: Entering directory '/home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph'
+[0.042s] cd /home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph && /usr/bin/cmake -E cmake_depends "Unix Makefiles" /home/biblbrox/Tesis/robot_controller/src/c /home/biblbrox/Tesis/robot_controller/src/c /home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph /home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph /home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph/CMakeFiles/nodegraph.dir/DependInfo.cmake --color=
+[0.050s] [35m[1mConsolidate compiler generated dependencies of target nodegraph[0m
+[0.056s] gmake[2]: Leaving directory '/home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph'
+[0.056s] /usr/bin/gmake  -f CMakeFiles/nodegraph.dir/build.make CMakeFiles/nodegraph.dir/build
+[0.061s] gmake[2]: Entering directory '/home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph'
+[0.061s] gmake[2]: Nothing to be done for 'CMakeFiles/nodegraph.dir/build'.
+[0.061s] gmake[2]: Leaving directory '/home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph'
+[0.069s] [100%] Built target nodegraph
+[0.069s] gmake[1]: Leaving directory '/home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph'
+[0.069s] /usr/bin/cmake -E cmake_progress_start /home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph/CMakeFiles 0
+[0.078s] Invoked command in '/home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph -- -j16 -l16
+[0.113s] Invoking command in '/home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph
+[0.119s] -- Install configuration: ""
+[0.120s] -- Up-to-date: /home/biblbrox/Tesis/robot_controller/src/c/install/nodegraph/share/nodegraph/environment/library_path.sh
+[0.120s] -- Up-to-date: /home/biblbrox/Tesis/robot_controller/src/c/install/nodegraph/share/nodegraph/environment/library_path.dsv
+[0.120s] -- Installing: /home/biblbrox/Tesis/robot_controller/src/c/lib/nodegraph/libnodegraph.so
+[0.120s] -- Set runtime path of "/home/biblbrox/Tesis/robot_controller/src/c/lib/nodegraph/libnodegraph.so" to ""
+[0.122s] Invoked command in '/home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/biblbrox/Tesis/robot_controller/src/c/build/nodegraph

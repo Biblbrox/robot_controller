@@ -1,0 +1,13 @@
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:[m[K In function ‘[01m[Kvoid kill_server_callback(ParticipantData, void*)[m[K’:
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:113:40:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Kuser_data[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wunused-parameter-Wunused-parameter]8;;[m[K]
+  113 |                                  [01;35m[Kvoid *user_data[m[K) {
+      |                                  [01;35m[K~~~~~~^~~~~~~~~[m[K
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:[m[K In function ‘[01m[Kint is_discovery_running_impl(uint32_t)[m[K’:
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:174:44:[m[K [01;31m[Kerror: [m[Kcould not convert ‘[01m[Knullptr[m[K’ from ‘[01m[Kstd::nullptr_t[m[K’ to ‘[01m[KDiscoveryServerParams[m[K’
+  174 |   if (run_discovery_server_impl(domain_id, [01;31m[Knullptr[m[K, nullptr, nullptr) == -1)
+      |                                            [01;31m[K^~~~~~~[m[K
+      |                                            [01;31m[K|[m[K
+      |                                            [01;31m[Kstd::nullptr_t[m[K
+gmake[2]: *** [CMakeFiles/nodegraph.dir/build.make:93: CMakeFiles/nodegraph.dir/src/discovery_server.cpp.o] Error 1
+gmake[1]: *** [CMakeFiles/Makefile2:140: CMakeFiles/nodegraph.dir/all] Error 2
+gmake: *** [Makefile:149: all] Error 2

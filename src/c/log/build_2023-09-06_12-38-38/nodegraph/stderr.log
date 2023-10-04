@@ -1,0 +1,19 @@
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:[m[K In function ‘[01m[Kvoid kill_server_callback(ParticipantData, void*, void*)[m[K’:
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:127:40:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Kuser_data[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wunused-parameter-Wunused-parameter]8;;[m[K]
+  127 |                                  [01;35m[Kvoid *user_data[m[K, void *discoverer)
+      |                                  [01;35m[K~~~~~~^~~~~~~~~[m[K
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:127:57:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Kdiscoverer[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wunused-parameter-Wunused-parameter]8;;[m[K]
+  127 |                                  void *user_data, [01;35m[Kvoid *discoverer[m[K)
+      |                                                   [01;35m[K~~~~~~^~~~~~~~~~[m[K
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:[m[K In function ‘[01m[Kint stop_discovery_server_impl(uint32_t)[m[K’:
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:162:75:[m[K [01;31m[Kerror: [m[K‘[01m[Kdiscoverer[m[K’ was not declared in this scope
+  162 |                 kill_server_callback, user_data_on_discovery_participant, [01;31m[Kdiscoverer[m[K);
+      |                                                                           [01;31m[K^~~~~~~~~~[m[K
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:[m[K In function ‘[01m[Kvoid register_discoverer(void*)[m[K’:
+[01m[K/home/biblbrox/Tesis/robot_controller/src/c/src/discovery_server.cpp:227:5:[m[K [01;31m[Kerror: [m[K‘[01m[Kdiscoverer[m[K’ was not declared in this scope; did you mean ‘[01m[Kdiscoverer_[m[K’?
+  227 |     [01;31m[Kdiscoverer[m[K = discoverer_;
+      |     [01;31m[K^~~~~~~~~~[m[K
+      |     [32m[Kdiscoverer_[m[K
+gmake[2]: *** [CMakeFiles/nodegraph.dir/build.make:93: CMakeFiles/nodegraph.dir/src/discovery_server.cpp.o] Error 1
+gmake[1]: *** [CMakeFiles/Makefile2:140: CMakeFiles/nodegraph.dir/all] Error 2
+gmake: *** [Makefile:149: all] Error 2
