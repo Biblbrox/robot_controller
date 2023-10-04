@@ -95,6 +95,7 @@ pub const SIG_ATOMIC_MAX: u32 = 2147483647;
 pub const SIZE_MAX: i32 = -1;
 pub const WINT_MIN: u32 = 0;
 pub const WINT_MAX: u32 = 4294967295;
+pub const GUID_PREFIX_SIZE: u32 = 12;
 pub type size_t = ::std::os::raw::c_ulong;
 pub type wchar_t = ::std::os::raw::c_int;
 #[repr(C)]
@@ -258,63 +259,101 @@ pub const rmw_transport_TCPV6_TRANSPORT: rmw_transport = 5;
 pub type rmw_transport = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Copy, Clone)]
-pub struct ParticipantData {
-    pub transport: rmw_transport,
-    pub participant: *mut ::std::os::raw::c_void,
+pub struct FastDDSEndpoint {
     pub port: u32,
-    pub guid: [::std::os::raw::c_uchar; 12usize],
-    pub __bindgen_anon_1: ParticipantData__bindgen_ty_1,
+    pub transport: rmw_transport,
+    pub __bindgen_anon_1: FastDDSEndpoint__bindgen_ty_1,
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
-pub union ParticipantData__bindgen_ty_1 {
-    pub endpoint_v4: [::std::os::raw::c_uchar; 16usize],
-    pub endpoint_v6: [::std::os::raw::c_uchar; 39usize],
+pub union FastDDSEndpoint__bindgen_ty_1 {
+    pub endpoint_v4: [::std::os::raw::c_uchar; 4usize],
+    pub endpoint_v6: [::std::os::raw::c_uchar; 16usize],
 }
 #[test]
-fn bindgen_test_layout_ParticipantData__bindgen_ty_1() {
+fn bindgen_test_layout_FastDDSEndpoint__bindgen_ty_1() {
     assert_eq!(
-        ::std::mem::size_of::<ParticipantData__bindgen_ty_1>(),
-        39usize,
-        concat!("Size of: ", stringify!(ParticipantData__bindgen_ty_1))
+        ::std::mem::size_of::<FastDDSEndpoint__bindgen_ty_1>(),
+        16usize,
+        concat!("Size of: ", stringify!(FastDDSEndpoint__bindgen_ty_1))
     );
     assert_eq!(
-        ::std::mem::align_of::<ParticipantData__bindgen_ty_1>(),
+        ::std::mem::align_of::<FastDDSEndpoint__bindgen_ty_1>(),
         1usize,
-        concat!("Alignment of ", stringify!(ParticipantData__bindgen_ty_1))
+        concat!("Alignment of ", stringify!(FastDDSEndpoint__bindgen_ty_1))
     );
     assert_eq!(
         unsafe {
-            &(*(::std::ptr::null::<ParticipantData__bindgen_ty_1>())).endpoint_v4 as *const _
+            &(*(::std::ptr::null::<FastDDSEndpoint__bindgen_ty_1>())).endpoint_v4 as *const _
                 as usize
         },
         0usize,
         concat!(
             "Offset of field: ",
-            stringify!(ParticipantData__bindgen_ty_1),
+            stringify!(FastDDSEndpoint__bindgen_ty_1),
             "::",
             stringify!(endpoint_v4)
         )
     );
     assert_eq!(
         unsafe {
-            &(*(::std::ptr::null::<ParticipantData__bindgen_ty_1>())).endpoint_v6 as *const _
+            &(*(::std::ptr::null::<FastDDSEndpoint__bindgen_ty_1>())).endpoint_v6 as *const _
                 as usize
         },
         0usize,
         concat!(
             "Offset of field: ",
-            stringify!(ParticipantData__bindgen_ty_1),
+            stringify!(FastDDSEndpoint__bindgen_ty_1),
             "::",
             stringify!(endpoint_v6)
         )
     );
 }
 #[test]
+fn bindgen_test_layout_FastDDSEndpoint() {
+    assert_eq!(
+        ::std::mem::size_of::<FastDDSEndpoint>(),
+        24usize,
+        concat!("Size of: ", stringify!(FastDDSEndpoint))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<FastDDSEndpoint>(),
+        4usize,
+        concat!("Alignment of ", stringify!(FastDDSEndpoint))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<FastDDSEndpoint>())).port as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(FastDDSEndpoint),
+            "::",
+            stringify!(port)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<FastDDSEndpoint>())).transport as *const _ as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(FastDDSEndpoint),
+            "::",
+            stringify!(transport)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct ParticipantData {
+    pub participant: *mut ::std::os::raw::c_void,
+    pub endpoint: FastDDSEndpoint,
+    pub guid: [::std::os::raw::c_uchar; 12usize],
+}
+#[test]
 fn bindgen_test_layout_ParticipantData() {
     assert_eq!(
         ::std::mem::size_of::<ParticipantData>(),
-        72usize,
+        48usize,
         concat!("Size of: ", stringify!(ParticipantData))
     );
     assert_eq!(
@@ -323,18 +362,8 @@ fn bindgen_test_layout_ParticipantData() {
         concat!("Alignment of ", stringify!(ParticipantData))
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<ParticipantData>())).transport as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ParticipantData),
-            "::",
-            stringify!(transport)
-        )
-    );
-    assert_eq!(
         unsafe { &(*(::std::ptr::null::<ParticipantData>())).participant as *const _ as usize },
-        8usize,
+        0usize,
         concat!(
             "Offset of field: ",
             stringify!(ParticipantData),
@@ -343,18 +372,18 @@ fn bindgen_test_layout_ParticipantData() {
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<ParticipantData>())).port as *const _ as usize },
-        16usize,
+        unsafe { &(*(::std::ptr::null::<ParticipantData>())).endpoint as *const _ as usize },
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(ParticipantData),
             "::",
-            stringify!(port)
+            stringify!(endpoint)
         )
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<ParticipantData>())).guid as *const _ as usize },
-        20usize,
+        32usize,
         concat!(
             "Offset of field: ",
             stringify!(ParticipantData),
@@ -364,21 +393,23 @@ fn bindgen_test_layout_ParticipantData() {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct WriterData {
     pub topic_name: [::std::os::raw::c_char; 255usize],
     pub type_name: [::std::os::raw::c_char; 255usize],
+    pub guid_prefix: [::std::os::raw::c_uchar; 12usize],
+    pub endpoint: FastDDSEndpoint,
 }
 #[test]
 fn bindgen_test_layout_WriterData() {
     assert_eq!(
         ::std::mem::size_of::<WriterData>(),
-        510usize,
+        548usize,
         concat!("Size of: ", stringify!(WriterData))
     );
     assert_eq!(
         ::std::mem::align_of::<WriterData>(),
-        1usize,
+        4usize,
         concat!("Alignment of ", stringify!(WriterData))
     );
     assert_eq!(
@@ -401,23 +432,45 @@ fn bindgen_test_layout_WriterData() {
             stringify!(type_name)
         )
     );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<WriterData>())).guid_prefix as *const _ as usize },
+        510usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(WriterData),
+            "::",
+            stringify!(guid_prefix)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<WriterData>())).endpoint as *const _ as usize },
+        524usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(WriterData),
+            "::",
+            stringify!(endpoint)
+        )
+    );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct ReaderData {
     pub topic_name: [::std::os::raw::c_char; 255usize],
     pub type_name: [::std::os::raw::c_char; 255usize],
+    pub guid_prefix: [::std::os::raw::c_uchar; 12usize],
+    pub endpoint: FastDDSEndpoint,
 }
 #[test]
 fn bindgen_test_layout_ReaderData() {
     assert_eq!(
         ::std::mem::size_of::<ReaderData>(),
-        510usize,
+        548usize,
         concat!("Size of: ", stringify!(ReaderData))
     );
     assert_eq!(
         ::std::mem::align_of::<ReaderData>(),
-        1usize,
+        4usize,
         concat!("Alignment of ", stringify!(ReaderData))
     );
     assert_eq!(
@@ -440,6 +493,26 @@ fn bindgen_test_layout_ReaderData() {
             stringify!(type_name)
         )
     );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ReaderData>())).guid_prefix as *const _ as usize },
+        510usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ReaderData),
+            "::",
+            stringify!(guid_prefix)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ReaderData>())).endpoint as *const _ as usize },
+        524usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ReaderData),
+            "::",
+            stringify!(endpoint)
+        )
+    );
 }
 pub type on_participant_discovery_callback_t = ::std::option::Option<
     unsafe extern "C" fn(participant_data: ParticipantData, user_data: *mut ::std::os::raw::c_void),
@@ -450,6 +523,116 @@ pub type on_reader_discovery_callback_t = ::std::option::Option<
 pub type on_writer_discovery_callback_t = ::std::option::Option<
     unsafe extern "C" fn(writer_data: WriterData, user_data: *mut ::std::os::raw::c_void),
 >;
+pub type on_participant_remove_callback_t = ::std::option::Option<
+    unsafe extern "C" fn(participant_data: ParticipantData, user_data: *mut ::std::os::raw::c_void),
+>;
+pub type on_reader_remove_callback_t = ::std::option::Option<
+    unsafe extern "C" fn(reader_data: ReaderData, user_data: *mut ::std::os::raw::c_void),
+>;
+pub type on_writer_remove_callback_t = ::std::option::Option<
+    unsafe extern "C" fn(writer_data: WriterData, user_data: *mut ::std::os::raw::c_void),
+>;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct DiscoveryServerParams {
+    pub participant_discovery_callback: on_participant_discovery_callback_t,
+    pub reader_discovery_callback: on_reader_discovery_callback_t,
+    pub writer_discovery_callback: on_writer_discovery_callback_t,
+    pub participant_removed_callback: on_participant_remove_callback_t,
+    pub reader_removed_callback: on_reader_remove_callback_t,
+    pub writer_removed_callback: on_writer_remove_callback_t,
+}
+#[test]
+fn bindgen_test_layout_DiscoveryServerParams() {
+    assert_eq!(
+        ::std::mem::size_of::<DiscoveryServerParams>(),
+        48usize,
+        concat!("Size of: ", stringify!(DiscoveryServerParams))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<DiscoveryServerParams>(),
+        8usize,
+        concat!("Alignment of ", stringify!(DiscoveryServerParams))
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<DiscoveryServerParams>())).participant_discovery_callback
+                as *const _ as usize
+        },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(DiscoveryServerParams),
+            "::",
+            stringify!(participant_discovery_callback)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<DiscoveryServerParams>())).reader_discovery_callback as *const _
+                as usize
+        },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(DiscoveryServerParams),
+            "::",
+            stringify!(reader_discovery_callback)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<DiscoveryServerParams>())).writer_discovery_callback as *const _
+                as usize
+        },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(DiscoveryServerParams),
+            "::",
+            stringify!(writer_discovery_callback)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<DiscoveryServerParams>())).participant_removed_callback
+                as *const _ as usize
+        },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(DiscoveryServerParams),
+            "::",
+            stringify!(participant_removed_callback)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<DiscoveryServerParams>())).reader_removed_callback as *const _
+                as usize
+        },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(DiscoveryServerParams),
+            "::",
+            stringify!(reader_removed_callback)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<DiscoveryServerParams>())).writer_removed_callback as *const _
+                as usize
+        },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(DiscoveryServerParams),
+            "::",
+            stringify!(writer_removed_callback)
+        )
+    );
+}
 extern "C" {
     #[doc = " Run discovery server in separate thread."]
     #[doc = " Note: this is non-blocking operation."]
@@ -458,9 +641,7 @@ extern "C" {
     #[doc = " @return"]
     pub fn run_discovery_server_impl(
         domain_id: u32,
-        participant_callback: on_participant_discovery_callback_t,
-        reader_callback: on_reader_discovery_callback_t,
-        writer_callback: on_writer_discovery_callback_t,
+        arg1: DiscoveryServerParams,
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
@@ -470,13 +651,22 @@ extern "C" {
     pub fn is_discovery_running_impl(domain_id: u32) -> ::std::os::raw::c_int;
 }
 extern "C" {
-    pub fn register_on_participant_data(data: *mut ::std::os::raw::c_void);
+    pub fn register_on_participant_discovery_data(data: *mut ::std::os::raw::c_void);
 }
 extern "C" {
-    pub fn register_on_reader_data(data: *mut ::std::os::raw::c_void);
+    pub fn register_on_reader_discovery_data(data: *mut ::std::os::raw::c_void);
 }
 extern "C" {
-    pub fn register_on_writer_data(data: *mut ::std::os::raw::c_void);
+    pub fn register_on_writer_discovery_data(data: *mut ::std::os::raw::c_void);
+}
+extern "C" {
+    pub fn register_on_participant_removed_data(data: *mut ::std::os::raw::c_void);
+}
+extern "C" {
+    pub fn register_on_reader_removed_data(data: *mut ::std::os::raw::c_void);
+}
+extern "C" {
+    pub fn register_on_writer_removed_data(data: *mut ::std::os::raw::c_void);
 }
 extern "C" {
     pub fn rclcpp_init(argc: ::std::os::raw::c_int, argv: *const *const ::std::os::raw::c_char);

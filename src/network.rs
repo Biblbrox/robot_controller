@@ -1,15 +1,18 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 pub mod network {
     use std::cell::RefCell;
-    use std::ffi::c_char;
     use std::fmt::Write;
     use std::num::ParseIntError;
-    use log::{debug, error};
-    use pcap::{Active, Capture, Device, IfFlags};
+    use dns_lookup::lookup_addr;
+    use log::{error};
     use serde::{Deserialize, Serialize};
-    use crate::discovery_server_impl::{ParticipantData, ReaderData, rmw_transport_SHM_TRANSPORT, rmw_transport_TCPV4_TRANSPORT, rmw_transport_TCPV6_TRANSPORT, rmw_transport_UPDV4_TRANSPORT, rmw_transport_UPDV6_TRANSPORT, WriterData};
+    use crate::discovery_server_impl::{FastDDSEndpoint, ParticipantData, rmw_transport_SHM_TRANSPORT, rmw_transport_TCPV4_TRANSPORT, rmw_transport_TCPV6_TRANSPORT, rmw_transport_UPDV4_TRANSPORT, rmw_transport_UPDV6_TRANSPORT};
     use crate::ros2entites::ros2entities::Host;
-    use crate::snoopy::capture::PacketCapture;
-    use crate::snoopy::parse::{PacketParse};
 
     pub struct Port {
         discovery_mcast_port: u32,
@@ -18,110 +21,32 @@ pub mod network {
         user_unicast_port: u32,
     }
 
-    #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-    pub struct RTPSPacket {
-        src_addr: String,
-        src_port: String,
-        dst_addr: String,
-        dst_port: String,
-        raw_data: Vec<u8>,
-    }
-
-    pub fn is_rtps(raw_data: Vec<u8>) -> bool {
-        // Convert to ascii data
-        let str_data: String = raw_data.iter().map(|byte| *byte as char).collect();
-        return str_data.contains("RTPS");
-    }
-
-
-    pub struct CaptureDevice {
-        pub device_name: String,
-        pub capture: RefCell<Capture<Active>>,
-    }
-
-    impl CaptureDevice {
-        pub fn new(device_name: String) -> Result<CaptureDevice, pcap::Error> {
-            let capture = match Capture::from_device(Device::from(device_name.as_str())).unwrap()
-                .promisc(true)
-                .snaplen(5000)
-                .timeout(1000)
-                .open() {
-                Ok(capture) => capture,
-                Err(err) => {
-                    error!("Error: {:?}", err);
-                    return Err(err);
-                }
+    pub fn parse_endpoint(endpoint: FastDDSEndpoint) -> String {
+        if endpoint.transport == rmw_transport_SHM_TRANSPORT {
+            return "SHM".to_string();
+        } else if endpoint.transport == rmw_transport_UPDV4_TRANSPORT {
+            let endpoint_vec: Vec<String> = unsafe {
+                endpoint.__bindgen_anon_1.endpoint_v4.to_ascii_uppercase().iter().map(|&c| c.to_string()).collect::<Vec<String>>()
             };
-
-            let capture_device = CaptureDevice {
-                device_name,
-                capture: RefCell::new(capture),
+            return format!("{}", endpoint_vec.join("."));
+        } else if endpoint.transport == rmw_transport_UPDV6_TRANSPORT {
+            let endpoint_vec: Vec<String> = unsafe {
+                endpoint.__bindgen_anon_1.endpoint_v6.to_ascii_uppercase().iter().map(|&c| c.to_string()).collect::<Vec<String>>()
             };
-
-            return Ok(capture_device);
+            return format!("{}", endpoint_vec.join("."));
+        } else if endpoint.transport == rmw_transport_TCPV4_TRANSPORT {
+            let endpoint_vec: Vec<String> = unsafe {
+                endpoint.__bindgen_anon_1.endpoint_v4.to_ascii_uppercase().iter().map(|&c| c.to_string()).collect::<Vec<String>>()
+            };
+            return format!("{}", endpoint_vec.join("."));
+        } else if endpoint.transport == rmw_transport_TCPV6_TRANSPORT {
+            let endpoint_vec: Vec<String> = unsafe {
+                endpoint.__bindgen_anon_1.endpoint_v6.to_ascii_uppercase().iter().map(|&c| c.to_string()).collect::<Vec<String>>()
+            };
+            return format!("{}", endpoint_vec.join("."));
         }
 
-        pub fn capture(&self, packets_num: i32) -> Vec<RTPSPacket> {
-            let mut cnt: i32 = 0;
-            let mut rtps_packets: Vec<RTPSPacket> = Vec::new();
-            let mut capture = self.capture.borrow_mut();
-            while cnt < packets_num {
-                let packet = capture.next_packet().unwrap();
-                let packet_parser = PacketParse::new();
-                let parsed_packet = match packet_parser.parse_packet(packet.data.to_owned(), packet.header.len, packet.header.ts.tv_sec.to_string()) {
-                    Ok(packet) => packet,
-                    Err(_err_msg) => continue
-                };
-                if is_rtps(packet.data.to_owned()) {
-                    // Extract src addr
-                    let (src_addr, src_port, dst_addr, dst_port) = PacketCapture::get_packet_meta(&parsed_packet);
-                    rtps_packets.push(RTPSPacket {
-                        src_addr,
-                        src_port,
-                        dst_addr,
-                        dst_port,
-                        raw_data: packet.data.to_owned(),
-                    });
-                }
-                cnt += 1;
-            }
-
-            return rtps_packets;
-        }
-    }
-
-    pub fn running_devices() -> Vec<Device> {
-        let devices = Device::list().unwrap();
-        let up_devices: Vec<Device> = devices.into_iter().filter(|device| device.flags.if_flags.contains(IfFlags::UP) && device.flags.if_flags.contains(IfFlags::RUNNING)).collect();
-        return up_devices;
-    }
-
-    pub fn parse_endpoint(participant_data: ParticipantData) -> String {
-        let mut endpoint: String = "".to_string();
-        if participant_data.transport == rmw_transport_SHM_TRANSPORT {
-            endpoint = "SHM".to_string();
-        } else if participant_data.transport == rmw_transport_UPDV4_TRANSPORT {
-            let udpv4: String = unsafe {
-                participant_data.__bindgen_anon_1.endpoint_v4.to_ascii_uppercase().iter().map(|&c| c.to_string()).collect::<String>()
-            };
-            endpoint = format!("{}", udpv4);
-        } else if participant_data.transport == rmw_transport_UPDV6_TRANSPORT {
-            let udpv6: String = unsafe {
-                participant_data.__bindgen_anon_1.endpoint_v6.to_ascii_uppercase().iter().map(|&c| c.to_string()).collect::<String>()
-            };
-            endpoint = format!("{}", udpv6);
-        } else if participant_data.transport == rmw_transport_TCPV4_TRANSPORT {
-            let tcpv4: String = unsafe {
-                participant_data.__bindgen_anon_1.endpoint_v4.to_ascii_uppercase().iter().map(|&c| c.to_string()).collect::<String>()
-            };
-            endpoint = format!("{}", tcpv4);
-        } else if participant_data.transport == rmw_transport_TCPV6_TRANSPORT {
-            let tcpv6: String = unsafe {
-                participant_data.__bindgen_anon_1.endpoint_v6.to_ascii_uppercase().iter().map(|&c| c.to_string()).collect::<String>()
-            };
-            endpoint = format!("{}", tcpv6);
-        }
-        return endpoint;
+        return "".to_string();
     }
 
     pub fn domain_ports(domain_id: u32) -> Port {
@@ -148,26 +73,6 @@ pub mod network {
         };
 
         return port;
-    }
-
-    pub fn parse_rtps(packet: RTPSPacket, port: &Port) {
-        let raw_data = packet.raw_data.to_owned();
-
-        if !(packet.dst_port == port.discovery_mcast_port.to_string()
-            || packet.dst_port == port.user_mcast_port.to_string()
-            || packet.src_port == port.discovery_mcast_port.to_string()
-            || packet.src_port == port.user_mcast_port.to_string()) {
-            return;
-        }
-
-        println!("Packet port: {:?}", packet.dst_port);
-        // Print data as string
-        let mut data_string = String::new();
-        for byte in raw_data {
-            data_string.push(byte as char);
-        }
-
-        println!("Packet data: {:?}", data_string);
     }
 
     pub fn find_node_host(node_name: String, domain_id: u32) -> Host {
@@ -220,14 +125,59 @@ pub mod network {
         s
     }
 
-    pub fn parse_guid(participant_data: ParticipantData) -> String {
-        let mut guid: String = participant_data.guid.to_vec().iter().map(|&c| format!("{}::", encode_hex(c.to_string().as_bytes()))).collect();
-        guid = guid[..guid.len() - 2].to_string();
-        return guid;
+    /// This function is used for discarding fastdds prefixes for topic names
+    ///
+    /// # Arguments
+    ///
+    /// * `topic_name`:
+    ///
+    /// returns: String
+    ///
+    /// # Examples
+    ///
+    /// let topic_fastdds: String = "rt/rosout".to_string();
+    /// let ros2_name = fastdds_to_ros2(topic_fastdds);
+    /// assert!(ros2_name.eq("rosout"));
+    pub fn fastdds_to_ros2(topic_name: String) -> String {
+        if topic_name.starts_with("rr/") || topic_name.starts_with("rt/") {
+            return topic_name[3..].to_string();
+        }
+        return topic_name;
     }
 
 
     pub fn string_from_c<const N: usize>(str: [::std::os::raw::c_char; N]) -> String {
         return String::from_iter(str.iter().take_while(|c| **c != 0).map(|c| *c as u8 as char));
+    }
+
+    fn sub_strings(string: &str, sub_len: usize) -> Vec<&str> {
+        let mut subs = Vec::with_capacity(string.len() / sub_len);
+        let mut iter = string.chars();
+        let mut pos = 0;
+
+        while pos < string.len() {
+            let mut len = 0;
+            for ch in iter.by_ref().take(sub_len) {
+                len += ch.len_utf8();
+            }
+            subs.push(&string[pos..pos + len]);
+            pos += len;
+        }
+        subs
+    }
+
+    pub fn hex_str_from_uc<const N: usize>(str: [::std::os::raw::c_uchar; N]) -> String {
+        let hex_array = hex::encode(str);
+        let hex_guid = sub_strings(hex_array.as_str(), 2).join(".");
+        return hex_guid;
+    }
+
+    pub fn hostname_ip(ip_str: String) -> String {
+        let ip: std::net::IpAddr = ip_str.parse().unwrap();
+        let hostname = match lookup_addr(&ip) {
+            Ok(name) => name,
+            Err(err) => "unknown".to_string()
+        };
+        return hostname;
     }
 }

@@ -1,9 +1,0 @@
-[target.x86_64-unknown-linux-gnu.libnodegraph]
-rustc-link-lib = ["nodegraph", "fastrtps", "rclcpp"]
-rustc-link-search = ["./src/c/lib/nodegraph", "/opt/ros/humble/lib"]
-#rustc-flags = "-l nodegraph"
-rustc-cfg = ['LD_PRELOAD="./src/c/lib/nodegraph/libnodegraph.so:/opt/ros/humble/lib/libfastrtps.so"']
-#rustc-env = 'LD_PRELOAD="./src/c/lib/nodegraph/libnodegraph.so:/opt/ros/humble/lib/libfastrtps.so"'
-rustc-cdylib-link-arg = ['LD_PRELOAD="./src/c/lib/nodegraph/libnodegraph.so:/opt/ros/humble/lib/libfastrtps.so"']
-#metadata_key1 = "value"
-#metadata_key2 = "value"
