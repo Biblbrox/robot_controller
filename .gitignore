@@ -19,6 +19,7 @@ server-*
 *.pdb
 
 .idea
+.code
 
 .PVS-Studio
 /src/c/cmake-build-release/
