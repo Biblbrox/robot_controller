@@ -73,22 +73,17 @@ async fn handle_client<'a>(mut stream: UnixStream, current_state: Arc<Mutex<Ros2
 fn main() -> io::Result<()> {
     let ld_library_path = env::var("LD_LIBRARY_PATH").unwrap();
 
+    let settings: Settings = confy::load("ros2_monitor", "config").unwrap();
+
     env::set_var("LD_LIBRARY_PATH", format!("./src/c/lib/nodegraph:{ld_library_path}"));
-    env::set_var("ROS_DISCOVERY_SERVER", "0.0.0.0:11811");
-    env::set_var("FASTRTPS_DEFAULT_PROFILES_FILE", "super_client_configuration_file.xml");
+    env::set_var("ROS_DISCOVERY_SERVER", settings.ros_discovery_server);
+    env::set_var("FASTRTPS_DEFAULT_PROFILES_FILE", settings.fastdds_default_profiles_file);
 
 
     Command::new("ros2").arg("daemon").arg("stop").output().unwrap();
     Command::new("ros2").arg("daemon").arg("start").output().unwrap();
     sleep(Duration::from_secs(1));
-
     simple_logger::init_with_level(log::Level::Debug).unwrap();
-
-    let settings: Settings = Settings {
-        domain_id: 1,
-        include_internals: false,
-        dds_topic_type: false,
-    };
 
     let ctrlc_pressed: Arc<AtomicBool> = Arc::new(AtomicBool::new(false));
     let ctrlc_pressed_setter = ctrlc_pressed.clone();

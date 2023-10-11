@@ -9,16 +9,30 @@ pub mod ros2entities {
     use std::string::String;
     use serde::{Deserialize, Serialize};
 
-    #[derive(Deserialize, Clone, Serialize)]
+    #[derive(Debug, Clone, Serialize, Deserialize)]
     pub struct Settings {
         pub domain_id: u32,
         pub include_internals: bool,
-        pub dds_topic_type: bool
+        pub dds_topic_type: bool,
+        pub ros_discovery_server: String,
+        pub fastdds_default_profiles_file: String,
+    }
+
+    impl Default for Settings {
+        fn default() -> Self {
+            return Settings {
+                domain_id: 1,
+                include_internals: false,
+                dds_topic_type: false,
+                ros_discovery_server: "0.0.0.0:11811".to_string(),
+                fastdds_default_profiles_file: "super_client_configuration_file.xml".to_string(),
+            };
+        }
     }
 
     impl Settings {
         pub fn new() -> Settings {
-            return Settings { domain_id: 0, include_internals: false, dds_topic_type: false };
+            return Settings::default();
         }
 
         pub fn from_json(json: &str) -> Settings {
